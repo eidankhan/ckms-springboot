@@ -14,22 +14,23 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import ulster.cybersecurity.org.util.JwtResponse;
 
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
-
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtUserDetailsService userDetailsService;
+    private final UserService userService;
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
-    @Autowired
-    private JwtUserDetailsService userDetailsService;
-
-    @Autowired
-    private UserService userService;
+    public JwtAuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil,
+                                       JwtUserDetailsService userDetailsService, UserService userService){
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userDetailsService = userDetailsService;
+        this.userService = userService;
+    }
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public GenericResponse createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -38,15 +39,15 @@ public class JwtAuthenticationController {
             return authenticationResponse;
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
-        User currentUser = userService.getRoleByUsername(userDetails.getUsername());
-//        authenticationResponse.setData(new JwtResponse(token,
-//                currentUser.getUserType(), currentUser.getName()));
+        authenticationResponse.setData(new JwtResponse(token,
+                userDetails.getAuthorities().toString(), userDetails.getUsername()));
         return authenticationResponse;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestBody User user) throws Exception {
-        return ResponseEntity.ok(userService.save(user));
+    public ResponseEntity<?> saveUser(@RequestBody User user,
+                                      @RequestParam(required = false) String role) throws Exception {
+        return ResponseEntity.ok(userService.save(user, role));
     }
 
     private GenericResponse authenticate(String username, String password) throws Exception {
