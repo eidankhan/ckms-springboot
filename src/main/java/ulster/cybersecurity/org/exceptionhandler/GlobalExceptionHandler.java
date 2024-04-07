@@ -20,4 +20,10 @@ public class GlobalExceptionHandler {
     public String handleRoleRelatedExceptions(RuntimeException e) {
         return e.getMessage();
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public String handleAccessDeniedException(RuntimeException e) {
+        return e.getMessage();
+    }
 }

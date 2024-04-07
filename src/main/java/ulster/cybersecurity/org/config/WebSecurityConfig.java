@@ -3,6 +3,7 @@ package ulster.cybersecurity.org.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ulster.cybersecurity.org.exceptionhandler.AccessDeniedException;
 
 @Configuration
 @EnableWebSecurity
@@ -70,7 +72,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // make sure we use stateless session; session won't be used to
                 // store user's state.
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .exceptionHandling()
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    String message = "You are not authorized to access this resource";
+                    response.setStatus(HttpStatus.FORBIDDEN.value()); // 403 Forbidden status
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \""+message+"\"}");
+                })
+                .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Add a filter to validate the tokens with every request
