@@ -2,10 +2,7 @@ package ulster.cybersecurity.org.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ulster.cybersecurity.org.model.Role;
 import ulster.cybersecurity.org.service.RoleService;
 
@@ -18,8 +15,11 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<?> save(@RequestBody Role role) {
-        return ResponseEntity.ok(roleService.save(role));
+        Boolean isNewRoleIntroduced = roleService.save(role);
+        return isNewRoleIntroduced
+                ? ResponseEntity.ok("New role introduced successfully")
+                : ResponseEntity.ok("Unable to introduce new role");
     }
 }

@@ -26,17 +26,14 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public User save(User user){
-        // Encoding password before saving to database
-        user.setPassword(bcryptEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
-    }
-
     public User save(User user, String roleName){
         Role userRole = (roleName == null || roleName.isEmpty())
                 ? roleRepository.findByName("ADMIN").orElseThrow(() -> new DefaultRoleNotFoundException("Default role not found"))
                 : roleRepository.findByName(roleName).orElseThrow(() -> new RoleNotFoundException("Role not found"));
         user.setRoles(Collections.singleton(userRole));
+
+        // Encoding password before saving to database
+        user.setPassword(bcryptEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 }

@@ -60,12 +60,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/hello",
                         "/authenticate",
                         "/users/register")
-                .permitAll().
+                .permitAll()
+
+                // Allow only admin to perform operations on roles in the system
+                .antMatchers("/roles").hasAuthority("ADMIN")
+
                 // all other requests need to be authenticated
-                        anyRequest().authenticated().and().
+                .anyRequest().authenticated().and()
+
                 // make sure we use stateless session; session won't be used to
                 // store user's state.
-                        exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Add a filter to validate the tokens with every request

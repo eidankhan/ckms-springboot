@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DuplicateKeyException.class)
+    @ExceptionHandler(RoleAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleDuplicateKeyException(DuplicateKeyException e) {
-        return "A role with the same name already exists.";
+    public String handleDuplicateKeyException(RuntimeException e) {
+        return e.getMessage();
     }
 
     @ExceptionHandler({DefaultRoleNotFoundException.class, RoleNotFoundException.class})
