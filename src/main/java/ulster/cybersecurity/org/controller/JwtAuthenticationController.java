@@ -22,14 +22,12 @@ public class JwtAuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtUserDetailsService userDetailsService;
-    private final UserService userService;
     @Autowired
     public JwtAuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil,
-                                       JwtUserDetailsService userDetailsService, UserService userService){
+                                       JwtUserDetailsService userDetailsService){
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;
-        this.userService = userService;
     }
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -42,12 +40,6 @@ public class JwtAuthenticationController {
         authenticationResponse.setData(new JwtResponse(token,
                 userDetails.getAuthorities().toString(), userDetails.getUsername()));
         return authenticationResponse;
-    }
-
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestBody User user,
-                                      @RequestParam(required = false) String role) throws Exception {
-        return ResponseEntity.ok(userService.save(user, role));
     }
 
     private GenericResponse authenticate(String username, String password) throws Exception {
